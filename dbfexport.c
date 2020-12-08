@@ -18,6 +18,7 @@ int main(int argc, char * argv[]) {
     char *pathw = "stdout";
     char *separator = "|";
     char *encoding = "cp1252";
+    char *mode = "w";
     int limit=-1, offset=0;
 
     //printf("Argument count=%d\n", argc);
@@ -44,6 +45,9 @@ int main(int argc, char * argv[]) {
         else if (strcmp(argv[i], "--encoding") == 0) {
             encoding = argv[++i];
         }
+        else if (strcmp(argv[i], "--append") == 0) {
+            mode = "a";
+        }
     }
 
     //printf("(%s) (%s) (%s) (%i) (%i)\n", pathr, pathw, separator, offset, limit);
@@ -53,7 +57,7 @@ int main(int argc, char * argv[]) {
     //char *pathw = "/home/jose/Escritorio/proyectos/github/dbfexport/output/new_pamovfijo.txt";
     //char *pathr = "/home/jose/Escritorio/SGI/respaldos/credito/20201130/mae_pres.dbf";
     //char *pathw = "/home/jose/Escritorio/proyectos/github/dbfexport/output/new_mae_pres.txt";
-    export(pathr, pathw, separator, offset, limit, encoding);
+    export(pathr, pathw, mode, separator, offset, limit, encoding);
     return 0;
 }
 
