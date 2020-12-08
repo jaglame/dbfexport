@@ -31,7 +31,7 @@ int Nlen(char * text, int len) {
     return 0;
 }
 
-int export(char *pathr, char *pathw, char *separator, int offset, int limit, char*encoding) {
+int export(char *pathr, char *pathw, char *mode, char *separator, int offset, int limit, char*encoding) {
 
     FILE *fr; // reader
     FILE *fw; // writer
@@ -49,6 +49,9 @@ int export(char *pathr, char *pathw, char *separator, int offset, int limit, cha
 
     if(!separator)
         separator = ";";
+    if(!mode)
+        mode = "w";
+
     count = 0;
 
     struct Field *field;
@@ -80,9 +83,13 @@ int export(char *pathr, char *pathw, char *separator, int offset, int limit, cha
         record_size += field->length;
     }
 
-    // long int ftell(FILE *stream)
     int position = ftell(fr);
     int records = header.records;
+
+    if(position != header.first_record) {
+        fprintf(stderr, "Invalid record position\n"); 
+        return 0;
+    }
 
     if(strcmp(encoding, "cp437") == 0)
         coder = cp437;
@@ -97,7 +104,7 @@ int export(char *pathr, char *pathw, char *separator, int offset, int limit, cha
     if(strcmp(pathw, "stdout") == 0)
         fw = stdout;
     else
-        fw = fopen(pathw, "w");
+        fw = fopen(pathw, mode);
 
     for(r=0; r<records; r++) {
 

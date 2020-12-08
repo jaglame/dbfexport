@@ -8,7 +8,7 @@ void cp437(char*, char**);
 
 int encode(char*, char*, int, void (*)(char*, char**));
 void test_encoding(char*);
-int export(char*, char*, char*, int, int, char*);
+int export(char*, char*, char*, char*, int, int, char*);
 
 struct Header { 
     char version; 
