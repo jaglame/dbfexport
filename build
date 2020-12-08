@@ -1,1 +1,1 @@
-gcc encoding.c dbfexport.c dbf.c export.c -o dbfexport
+gcc src/encoding.c src/dbfexport.c src/dbf.c src/export.c -o dbfexport
