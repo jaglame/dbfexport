@@ -2,12 +2,7 @@
 #include<stdio.h>
 #include<string.h>
 #include<stdlib.h>
-
-
-
 #include "encoding.h"
-
-
 
 
 
@@ -50,14 +45,6 @@ int main(int argc, char * argv[]) {
         }
     }
 
-    //printf("(%s) (%s) (%s) (%i) (%i)\n", pathr, pathw, separator, offset, limit);
-    //test_encoding("cp1252");
-    //test_encoding("cp437");
-    //char *pathr = "/home/jose/Escritorio/SGI/respaldos/credito/20201130/pamovfij.dbf";
-    //char *pathw = "/home/jose/Escritorio/proyectos/github/dbfexport/output/new_pamovfijo.txt";
-    //char *pathr = "/home/jose/Escritorio/SGI/respaldos/credito/20201130/mae_pres.dbf";
-    //char *pathw = "/home/jose/Escritorio/proyectos/github/dbfexport/output/new_mae_pres.txt";
-    export(pathr, pathw, mode, separator, offset, limit, encoding);
-    return 0;
+    return export(pathr, pathw, mode, separator, offset, limit, encoding);
 }
 
