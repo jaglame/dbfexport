@@ -8,7 +8,7 @@ void cp437(char*, char**);
 
 int encode(char*, char*, int, void (*)(char*, char**));
 void test_encoding(char*);
-int export(char*, char*);
+int export(char*, char*, char*, int, int, char*);
 
 struct Header { 
     char version; 
@@ -25,8 +25,8 @@ struct Header {
 }; 
 
 struct Field {
-    unsigned char name[11];
-    unsigned char type;
+    char name[11];
+    char type;
     unsigned int displacement; // Displacement of field in record
     unsigned char length;
     unsigned char decimal;

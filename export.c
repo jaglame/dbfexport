@@ -31,14 +31,13 @@ int Nlen(char * text, int len) {
     return 0;
 }
 
-int export(char *pathr, char *pathw) {
+int export(char *pathr, char *pathw, char *separator, int offset, int limit, char*encoding) {
 
     FILE *fr; // reader
     FILE *fw; // writer
 
     bool cmp, deleted;
     char terminator;
-    char * separator;
     short record_size;
     int secure = 1000;
     short columns = 0; 
@@ -46,11 +45,10 @@ int export(char *pathr, char *pathw) {
     unsigned char text[300];
     unsigned char text2[1024];
     void (*coder)(char*,char**);
-    int limit, offset, count;
+    int count;
 
-    separator = ",";
-    offset = 0;
-    limit = 10;
+    if(!separator)
+        separator = ";";
     count = 0;
 
     struct Field *field;
@@ -59,10 +57,15 @@ int export(char *pathr, char *pathw) {
     struct Date date;
 
     fr = fopen(pathr, "r");
+    if(!fr) {
+        fprintf(stderr, "DBF file not found\n");
+        return -1;
+    }
+
     fread(&header, sizeof(struct Header), 1, fr);
     cmp = header.version==0x3; // 0x03 FoxBASE+/Dbase III plus, no memo
     if(!cmp) {
-        printf("ONLY 0x03 FoxBASE+/Dbase III plus, no memo");
+        fprintf(stderr, "ONLY 0x03 FoxBASE+/Dbase III plus, no memo");
         return -1;
     }
 
@@ -80,10 +83,21 @@ int export(char *pathr, char *pathw) {
     // long int ftell(FILE *stream)
     int position = ftell(fr);
     int records = header.records;
-    coder = cp1252;
+
+    if(strcmp(encoding, "cp437") == 0)
+        coder = cp437;
+    else if(strcmp(encoding, "cp1252") == 0)
+        coder = cp1252;
+    else {
+        fprintf(stderr, "Default encoding cp1252\n"); 
+        coder = cp1252;
+    }
 
     // Write output.
-    fw = fopen(pathw, "w");
+    if(strcmp(pathw, "stdout") == 0)
+        fw = stdout;
+    else
+        fw = fopen(pathw, "w");
 
     for(r=0; r<records; r++) {
 
@@ -121,16 +135,24 @@ int export(char *pathr, char *pathw) {
             else if(field->type == 'D') {
                 cmp = text[0] != ' ';
                 if(cmp) {
+                    /*
                     memcpy(&date, text, sizeof(struct Date));
                     fwrite(date.y, 4, 1, fw);
                     fwrite("-", 1, 1, fw);
                     fwrite(date.m , 2, 1, fw);
                     fwrite("-", 1, 1, fw);
                     fwrite(date.d , 2, 1, fw);
+                    */
+
+                    fwrite(text + 0, 4, 1, fw);
+                    fwrite("-", 1, 1, fw);
+                    fwrite(text + 4, 2, 1, fw);
+                    fwrite("-", 1, 1, fw);
+                    fwrite(text + 6, 2, 1, fw);
                 }
             }
             else  {
-                printf("NO SOPORTADO****************\n");
+                fprintf(stderr, "Type '%c' no supported\n", field->type);
             }
         }
 
@@ -140,7 +162,7 @@ int export(char *pathr, char *pathw) {
 
     fclose(fw);
     fclose(fr);
-    printf( "COUNT(%i) RECORDS(%i)\n", count, records) ; 
+    printf("COUNT(%i) RECORDS(%i)\n", count, records); 
     return 0;
 }
 
