@@ -5,6 +5,7 @@
 #include <stdbool.h> 
 #include "encoding.h"
 
+#define MAX_FIELDS 200
 
 // 'text      ' -> 'text'
 int Clen(char * text, int len) {
@@ -38,14 +39,20 @@ int export(char *pathr, char *pathw, char *mode, char *separator, int offset, in
 
     bool cmp, deleted;
     char terminator;
+
     short record_size;
-    int secure = 1000;
     short columns = 0; 
-    int c, r, len, size, deleted_count;
+
     unsigned char text[300];
     unsigned char text2[1024];
-    void (*coder)(char*,char**);
+
+    int c, r, i, len, size, deleted_count;
+    short secure = MAX_FIELDS;
+    short columns_order[MAX_FIELDS];
+    short columns_max = MAX_FIELDS-1;
     int count;
+
+    void (*coder)(char*,char**);
 
     if(!separator)
         separator = ";";
@@ -55,7 +62,7 @@ int export(char *pathr, char *pathw, char *mode, char *separator, int offset, in
     count = 0;
 
     struct Field *field;
-    struct Field fields[200];
+    struct Field fields[MAX_FIELDS];
     struct Header header; 
     struct Date date;
 
@@ -101,6 +108,14 @@ int export(char *pathr, char *pathw, char *mode, char *separator, int offset, in
         coder = cp1252;
     }
 
+
+    columns_max = columns-1;
+    for(c=0; c<=columns_max; c++){
+        columns_order[c] = c;
+    }
+
+
+
     // Write output.
     if(strcmp(pathw, "stdout") == 0)
         fw = stdout;
@@ -124,8 +139,14 @@ int export(char *pathr, char *pathw, char *mode, char *separator, int offset, in
             continue;
         }
 
-        for(c=0; c<columns; c++) {
+        //for(c=0; c<columns; c++) {
+            //field = &fields[c];
+
+        for(i=0; i<=columns_max; i++) {
+
+            c = columns_order[i];
             field = &fields[c];
+
             text[field->length] = 0;
             size = fread(&text, field->length, 1, fr);
             if(c)
@@ -170,7 +191,7 @@ int export(char *pathr, char *pathw, char *mode, char *separator, int offset, in
 
     fclose(fw);
     fclose(fr);
-    printf("COUNT(%i) RECORDS(%i)\n", count, records); 
+    printf("COUNT(%i) RECORDS(%i) DELETED(%i) COLUMNS(%i)\n", count, records, deleted_count, columns); 
     return 0;
 }
 
