@@ -1,0 +1,1 @@
+gcc encoding.c dbfexport.c -o dbfexport
