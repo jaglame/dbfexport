@@ -1,12 +1,7 @@
 
-
-
-
 #define MAX_FIELDS 200
-#define FIELD struct Field
-#define FIELDS struct Fields
 
-struct Header { 
+typedef struct { 
     char version; 
     char year; 
     char month;
@@ -18,9 +13,9 @@ struct Header {
     char data3; // Table flags
     char data4; // Code page mark
     short data5; // Reserved, contains 0x00
-}; 
+} Header;
 
-struct Field {
+typedef struct {
     char name[11];
     char type;
     unsigned int displacement; // Displacement of field in record
@@ -30,18 +25,18 @@ struct Field {
     char data1[4];  // Value of autoincrement Next value
     char data2;  // Value of autoincrement Step value
     char data3[8];  // Reserved                                                                                                                                                                                                                                                                
-};
+} Field;
 
-struct Fields {
-    struct Field **fields;
+typedef struct {
+    Field **fields;
     int count;
-};
+} Fields;
 
-struct Date {
+typedef struct {
     char y[4];
     char m[2];
     char d[2];
-};
+} Date;
 
 
 typedef struct {
@@ -59,7 +54,6 @@ void cp1252(char*, char**);
 void cp437(char*, char**);
 int encode(char*, char*, int, void (*)(char*, char**));
 void test_encoding(char*);
-//int export(char*, char*, char*, char*, int, int, char*);
 int export(Params*);
 
 
