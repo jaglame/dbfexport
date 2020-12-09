@@ -10,6 +10,10 @@ int encode(char*, char*, int, void (*)(char*, char**));
 void test_encoding(char*);
 int export(char*, char*, char*, char*, int, int, char*);
 
+#define MAX_FIELDS 200
+#define FIELD struct Field
+#define FIELDS struct Fields
+
 struct Header { 
     char version; 
     char year; 
@@ -35,6 +39,13 @@ struct Field {
     char data2;  // Value of autoincrement Step value
     char data3[8];  // Reserved                                                                                                                                                                                                                                                                
 };
+
+
+struct Fields {
+    struct Field **fields;
+    int count;
+};
+
 
 struct Date {
     char y[4];
