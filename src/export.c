@@ -1,12 +1,8 @@
-
-
 #include <stdio.h> 
 #include <string.h> 
 #include <stdbool.h>
 #include <stdlib.h>
 #include "dbfexport.h"
-
-
 
 // 'text      ' -> 'text'
 int Clen(char * text, int len) {
@@ -32,7 +28,6 @@ int Nlen(char * text, int len) {
 
     return 0;
 }
-
 
 Field* get_field_by_name(Fields *fields_reader, char *name) {
     
@@ -96,11 +91,7 @@ Fields* generate_fields(Fields *fields_reader, char *columns_str) {
     return fields_final;
 }
 
-
-
-//int export(char *pathr, char *pathw, char *mode, char *separator, int offset, int limit, char*encoding) {
-int export(Params * params) {
-
+int export(Params *params) {
 
     FILE *fr; // reader
     FILE *fw; // writer
