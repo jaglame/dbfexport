@@ -2,10 +2,12 @@
 Exportar un dbf a otro formato(csv)
 
 **Support**
-FoxBASE+/Dbase III plus, no memo
+
+* FoxBASE+/Dbase III plus, no memo
 
 **Requirements**
-gcc compiler
+
+* gcc compiler
 
 **Build**
 
