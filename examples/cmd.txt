@@ -2,6 +2,8 @@
 
 dbfexport /home/user/data/table.dbf >> table.csv
 
+dbfexport /home/user/data/table.dbf --fields "COL1 COL2 COL1 COL3 COL1" >> table.csv
+
 dbfexport /home/user/data/table.dbf --append -out table.csv
 
 
