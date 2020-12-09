@@ -1,6 +1,20 @@
 # dbfexport
 Exportar un dbf a otro formato(csv)
 
+**Support**
+FoxBASE+/Dbase III plus, no memo
+
+**Requirements**
+gcc compiler
+
+**Build**
+
+```console
+cd dbfexport
+./build
+```
+
+
 **Examples**
 
 ```console
