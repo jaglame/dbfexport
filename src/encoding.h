@@ -1,14 +1,6 @@
 
 
-//int (*encodePtr)(char*,char**);
 
-//void (*coderPtr)(char*, char**);
-void cp1252(char*, char**);
-void cp437(char*, char**);
-
-int encode(char*, char*, int, void (*)(char*, char**));
-void test_encoding(char*);
-int export(char*, char*, char*, char*, int, int, char*);
 
 #define MAX_FIELDS 200
 #define FIELD struct Field
@@ -40,16 +32,35 @@ struct Field {
     char data3[8];  // Reserved                                                                                                                                                                                                                                                                
 };
 
-
 struct Fields {
     struct Field **fields;
     int count;
 };
-
 
 struct Date {
     char y[4];
     char m[2];
     char d[2];
 };
+
+
+typedef struct {
+    char *pathr;
+    char *pathw;
+    char *mode;
+    char *separator;
+    int offset;
+    int limit;
+    char *encoding;
+    char *fields;
+}Params;
+
+void cp1252(char*, char**);
+void cp437(char*, char**);
+int encode(char*, char*, int, void (*)(char*, char**));
+void test_encoding(char*);
+//int export(char*, char*, char*, char*, int, int, char*);
+int export(Params*);
+
+
 

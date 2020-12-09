@@ -56,35 +56,20 @@ FIELDS* generate_column(FIELDS *fields_reader, char *columns_str) {
     int i, j, m, len;
     char c;
     char field_name[255];
-    short col_max;
 
     FIELD *field;
     FIELD *field_new;
-    //FIELD fields_new[fields_reader->count];
-
     FIELD **fields_new=NULL;
+    FIELDS *fields_final;
 
     short count = 0;
-
-    //short, i, j, m, len, index;    
-    //fields_writer = (struct Field*) malloc((2*sizeof(struct Field)));
-    //fields_writer[0] = fields[0];
-    //fields_writer[1] = fields[0];
-    //fields_writer_count = 2;
-
-
-    col_max = 0;
     m = strlen(columns_str)-1;
     i = 0;
-
 
     for(j=0; j<=m; j++) {
 
         c = columns_str[j];
         if(c == ' ' || j == m) {
-            //printf("%i -> %i (%c)\n", j, m, columns[j]);
-            //memcpy(person.name, myname, strlen(myname)+1 );
-
 
             len = j-i;
             if(j == m && c != ' ')
@@ -98,16 +83,8 @@ FIELDS* generate_column(FIELDS *fields_reader, char *columns_str) {
 
                 if(field) {
                     count++;
-
                     fields_new = (FIELD**)realloc(fields_new, count*sizeof(FIELD*));
                     fields_new[count-1] = field;
-
-                    field_new = fields_new[count-1];
-                    //strcpy(field_new->name, field->name);
-                    //field_new->length = field->displacement;
-                    //field_new->length = field->length;
-
-                    //printf("NAME(out): %s\n", field_new->name);
                 }
             }
 
@@ -115,38 +92,17 @@ FIELDS* generate_column(FIELDS *fields_reader, char *columns_str) {
         }
     }
 
-    //FIELDS fields_r;
-    //fields_r.fields = fields_new;
-    //fields_r.count = count;
-    //FIELDS *fields_2 = &fields_r;  
-    //return fields_2;
-    // str = (char *) malloc(15);
-
-
-
-
-    FIELDS * fields_final = (FIELDS*)malloc(sizeof(FIELDS));
+    fields_final = (FIELDS*)malloc(sizeof(FIELDS));
     fields_final->fields = fields_new;
     fields_final->count = count;
-
-
-    int z;
-    for(z=0; z<count; z++) {
-        printf("NAME(out.xx): %s\n", fields_final->fields[z]->name);
-    }
-
-
-    //printf("%d\n", (long)&fields_final);
     return fields_final;
-
-    //return fields_2;
-
-    //return fields_writer; // new columns_max
 }
 
 
 
-int export(char *pathr, char *pathw, char *mode, char *separator, int offset, int limit, char*encoding) {
+//int export(char *pathr, char *pathw, char *mode, char *separator, int offset, int limit, char*encoding) {
+int export(Params * params) {
+
 
     FILE *fr; // reader
     FILE *fw; // writer
@@ -154,6 +110,7 @@ int export(char *pathr, char *pathw, char *mode, char *separator, int offset, in
     bool cmp, deleted;
     char terminator;
     char * buffer;
+    char *separator, *mode;
 
     short record_size;
     short fields_count = 0; 
@@ -171,38 +128,30 @@ int export(char *pathr, char *pathw, char *mode, char *separator, int offset, in
     void (*coder)(char*,char**);
 
     FIELD *field;
-    //FIELD fields[MAX_FIELDS];
-
-    //FIELDS * fields = (FIELDS*)malloc(sizeof(FIELDS));
-
     FIELD **fields = NULL;
-
-    //FIELD **fields = (FIELD**)malloc(MAX_FIELDS*sizeof(FIELD*)); // pointers.
-
-
-
     FIELDS *fields_reader = (FIELDS*)malloc(sizeof(FIELDS));    
     FIELDS *fields_writer;
 
     struct Header header; 
 
 
-    //struct Date date;
-    //struct Field *fields_writer;
+    separator = params->separator;
+    //mode = params->mode;
+    
+    /*if(params->separator)
 
-
-
-
-    if(!separator)
+    else
         separator = ";";
-    if(!mode)
+
+    if(params->mode)
+        mode = params->mode;
+    else
         mode = "w";
+    */
 
     count = 0;
 
-
-
-    fr = fopen(pathr, "r");
+    fr = fopen(params->pathr, "r");
     if(!fr) {
         fprintf(stderr, "DBF file not found\n");
         return -1;
@@ -223,10 +172,7 @@ int export(char *pathr, char *pathw, char *mode, char *separator, int offset, in
             break;
 
         fields_count++;
-
         fseek(fr, -1, SEEK_CUR);
-        //field = &fields[fields_count++];
-
 
         field = (FIELD*)malloc(sizeof(FIELD));
 
@@ -235,140 +181,49 @@ int export(char *pathr, char *pathw, char *mode, char *separator, int offset, in
 
         fields = (FIELD**)realloc(fields, fields_count*sizeof(FIELD*));
         fields[fields_count-1] = field;
-
-
-        //printf("displacement: %i %i\n", field->displacement, field->length);
-
     }
 
     fields_reader->fields = fields;
     fields_reader->count = fields_count;
     fields_writer = fields_reader;
-
-    //printf("%i\n", fields_count);
-    //for(c=0; c<fields_writer->count; c++) {
-    //    printf("%s\n", fields_writer->fields[c]->name);
-    //}
-    //return 0;
-    //buffer = malloc();
-
-
-
-    //fields_writer = fields;
-    //fields_writer_count = fields_count;
-
-    buffer = (char*) malloc((record_size*sizeof(char))); /*+1 for '\0' character */
+    buffer = (char*) malloc((record_size*sizeof(char)));
 
     int position = ftell(fr);
     int records = header.records;
 
     if(position != header.first_record) {
         fprintf(stderr, "Invalid record position\n"); 
-        return 0;
+        return -1;
     }
 
-    if(strcmp(encoding, "cp437") == 0)
+    if(strcmp(params->encoding, "cp437") == 0)
         coder = cp437;
-    else if(strcmp(encoding, "cp1252") == 0)
+    else if(strcmp(params->encoding, "cp1252") == 0)
         coder = cp1252;
     else {
         fprintf(stderr, "Default encoding cp1252\n"); 
         coder = cp1252;
     }
 
-
-
-    //fields_writer = &fields_reader;
-
-
-    /*
-    fields_writer = (struct Field*) malloc((2*sizeof(struct Field)));
-    fields_writer[0] = fields[0];
-    fields_writer[1] = fields[0];
-    fields_writer_count = 2;
-    */
-
-
-    //printf("%s\n", fields_writer[0].name);
-    //return 0;
-
-    //columns_max = columns;
-    //for(c=0; c<columns_max; c++){
-    //    columns_order[c] = c;
-    //}
-
-
-
-    //char * columns_str = "A_SOCIO A_NRO_PRE A_FEC_PRE A_MONT_PRE A_CUOTA A_PLAZO A_SDO_PRE A_POR_INTE A_POR_MULT A_RUBRO A_ACU_CUOT A_ACU_PAGO A_ACU_INTE  A_NRO_REFI A_FEC_DESD A_RELACION";
-    char * columns_str = "A_SOCIO A_NRO_PRE A_SOCIO A_SOCIO";
-    //char * columns_str = "A_NRO_PRE A_SOCIO A_SOCIO";
-    //columns_max = generate_column(fields, columns_order, columns_txt, columns_max);
-    //printf("%i %i\n", columns_max, columns_order[0]);
-
-
-    //FIELDS * xfields;
-
-        
-    fields_writer = generate_column(fields_reader, columns_str);
-
-
-    printf("count(%i)\n", fields_writer->count);
-    printf("count(%i)\n", fields_writer->count);
-    printf("count(%i)\n", fields_writer->count);
-    printf("count(%i)\n", fields_writer->count);
-
-    if(fields_writer->count > 0) {
-
-        for(c=0; c<fields_writer->count; c++) {
-
-            //printf("%s of %i\n", fields_writer->fields[c].name, fields_writer->count);
-            printf("xxx%s\n", fields_writer->fields[c]->name);
-
-        }        
+    if(params->fields) {
+        fields_writer = generate_column(fields_reader, params->fields);
+        if(fields_writer->count == 0) {
+            fprintf(stderr, "No Columns\n");
+            return -1;
+        }
     }
-    else {
-        fprintf(stderr, "No Columns\n");
-        return -1;
-    }
-
-    
-
-    //printf("FINAL?--> () %i\n", fields_writer->count);
-
-    //return 0;
-
-
-
-
-    //int xxx = sizeof(fields_writer) / sizeof(FIELD);
-    //int xxx = sizeof(*fields_writer)  / sizeof(int);
-    //return 0;
 
     // Write output.
-    if(strcmp(pathw, "stdout") == 0)
+    if(strcmp(params->pathw, "stdout") == 0)
         fw = stdout;
     else
-        fw = fopen(pathw, mode);
-
-
-    
-
-    //fields_writer_count = fields_writer.count;
-
-
-
-    //printf("FINAL?--> () %i\n", fields_writer->count);
+        fw = fopen(params->pathw, params->mode);
 
     for(r=0; r<records; r++) {
 
-        
-        //printf("FINAL?--> () %i\n", fields_writer->count);
-
-        //continue;
-
-        if(r < offset)
+        if(r < params->offset)
             continue;
-        if(limit > 0 && count >= limit)
+        if(params->limit > 0 && count >= params->limit)
             break;
 
         // Verificar si el registro está marcado para borrar.
@@ -380,27 +235,14 @@ int export(char *pathr, char *pathw, char *mode, char *separator, int offset, in
             deleted_count++;
             continue;
         }
-        
+
+        // read        
         fread(buffer, record_size, 1, fr);
-
-
-        //printf("FINAL?--> () %i\n", fields_writer->count);
-        //continue;
- 
-
-
         for(c=0; c<fields_writer->count; c++) {
 
-
-
-
-            //field = &fields[c];
-            //field = &fields_writer[c];
             field = fields_writer->fields[c];
             text[field->length] = 0;
             strncpy(text, buffer+field->displacement-1, field->length);
-
-            //printf("%s %s\n", field->name, text);
 
             if(c)
                 fwrite(separator, 1, 1, fw);
@@ -427,54 +269,9 @@ int export(char *pathr, char *pathw, char *mode, char *separator, int offset, in
             else  {
                 //fprintf(stderr, "Type '%c' no supported\n", field->type);
             }
-
-            //printf("%s\n", text);
-            
-
-
         }
 
         fwrite("\n", 1, 1, fw);
-
-        //printf("buffer-> %s", buffer);
-
-        /*        
-        for(c=0; c<columns; c++) {
-            field = &fields[c];
-            text[field->length] = 0;
-            size = fread(&text, field->length, 1, fr);
-            if(c)
-                fwrite(separator, 1, 1, fw);
-
-            if(field->type == 'C') {
-                len = Clen(text, field->length);
-                len = encode(text, text2, len, coder);
-                fwrite(text2, len, 1, fw);
-            }
-            else if(field->type == 'N') {
-                len = Nlen(text, field->length);
-                fwrite(text+(field->length-len), len, 1, fw);
-            }
-            else if(field->type == 'D') {
-                cmp = text[0] != ' ';
-                if(cmp) {
-                      fwrite(text + 0, 4, 1, fw);
-                    fwrite("-", 1, 1, fw);
-                    fwrite(text + 4, 2, 1, fw);
-                    fwrite("-", 1, 1, fw);
-                    fwrite(text + 6, 2, 1, fw);
-                }
-            }
-            else  {
-                //fprintf(stderr, "Type '%c' no supported\n", field->type);
-            }
-        }
-
-        fwrite("\n", 1, 1, fw);
-        */
-
-
-
         count++;
     }
 

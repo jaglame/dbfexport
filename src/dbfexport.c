@@ -12,7 +12,9 @@ int main(int argc, char * argv[]) {
     char *separator = "|";
     char *encoding = "cp1252";
     char *mode = "w";
+    char *fields = 0;
     int limit=-1, offset=0;
+    Params params;
 
     //printf("Argument count=%d\n", argc);
     for (i = 0; i < argc; i++) {
@@ -41,8 +43,19 @@ int main(int argc, char * argv[]) {
         else if (strcmp(argv[i], "--append") == 0) {
             mode = "a";
         }
+        else if (strcmp(argv[i], "--fields") == 0) {
+            fields = argv[++i];
+        }
     }
 
-    return export(pathr, pathw, mode, separator, offset, limit, encoding);
+    params.pathr = pathr;
+    params.pathw = pathw;
+    params.mode = mode;
+    params.separator = separator;
+    params.offset = offset;
+    params.limit = limit;
+    params.encoding = encoding;
+    params.fields = fields;
+    return export(&params);
 }
 
