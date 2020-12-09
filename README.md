@@ -1,5 +1,6 @@
 # dbfexport
-Exportar un dbf a otro formato(csv)
+
+Export a dbf to a csv
 
 **Support**
 
