@@ -5,15 +5,16 @@
 #include "dbfexport.h"
 
 // 'text      ' -> 'text'
+// ' text      ' -> ' text'
 int Clen(char * text, int len) {
 
     int i;
     for(i=len-1; i>=0; i--) {
         if(text[i] != ' ')
-            return i+1;
+            break;
     }
 
-    return 0;
+    return i+1;
 }
 
 // '   12345' -> '12345'
@@ -22,11 +23,11 @@ int Nlen(char * text, int len) {
     n = 0;
     for(i=len-1; i>=0; i--) {
         if(text[i] == ' ')
-            return n;
+            break;
         n++;
     }
 
-    return 0;
+    return n; // len-i-1
 }
 
 Field* get_field_by_name(Fields *fields_reader, char *name) {
