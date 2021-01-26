@@ -328,6 +328,17 @@ void cp437(char *c1, char **c2) {
         *c1 = '?'; // unknow
 }
 
+/*
+
+Sequence	Represents
+\b	Backspace (ASCII 8)
+\f	Form feed (ASCII 12)
+\n	Newline (ASCII 10)
+\r	Carriage return (ASCII 13)
+\t	Tab (ASCII 9)
+\v	Vertical tab (ASCII 11)
+
+*/
 
 int encode(char*text, char*text2, int len, void (*coder)(char*, char**)) {
     // cp1252 -> utf-8
@@ -343,7 +354,23 @@ int encode(char*text, char*text2, int len, void (*coder)(char*, char**)) {
 
         c2 = 0;
         c1 = text[i++];
-        coder(&c1, &c2);
+
+        if(c1 == '\n')
+            c2 = "\\n";  // Enter
+        else if(c1 == '\f')
+            c2 = "\\f";  // Form feed
+        else if(c1 == '\r')
+            c2 = "\\r";  // Carriage return
+         else if(c1 == '\v')
+            c2 = "\\v";  // Vertical tab
+        else if(c1 == '\t')
+            c2 = "\\t";  // Tab
+        else if(c1 == '|')
+            c2 = "\\|";  // Separator
+        else if(c1 == '\\')
+            c2 = "\\\\";  // 
+        else
+            coder(&c1, &c2);
 
         if(c2 != 0) {
             k = strlen(c2);
